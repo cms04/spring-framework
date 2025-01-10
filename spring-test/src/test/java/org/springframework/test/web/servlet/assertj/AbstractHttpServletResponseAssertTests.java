@@ -16,15 +16,14 @@
 
 package org.springframework.test.web.servlet.assertj;
 
-import java.util.Map;
-
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -166,6 +165,51 @@ class AbstractHttpServletResponseAssertTests {
 			assertThatExceptionOfType(AssertionError.class)
 					.isThrownBy(() -> assertThat(response).hasStatus2xxSuccessful())
 					.withMessageContainingAll("HTTP status series", "SUCCESSFUL", "SERVER_ERROR");
+		}
+
+		private MockHttpServletResponse createResponse(int status) {
+			MockHttpServletResponse response = new MockHttpServletResponse();
+			response.setStatus(status);
+			return response;
+		}
+	}
+
+	@Nested
+	class HttpStatusTests {
+
+		@Test
+		void testStatusOk() {
+			assertThat(createResponse(200))
+					.httpStatus()
+					.isOk();
+		}
+
+		@Test
+		void testStatusBadRequest() {
+			assertThat(createResponse(400))
+					.httpStatus()
+					.isBadRequest();
+		}
+
+		@Test
+		void testStatusInternalServerError() {
+			assertThat(createResponse(500))
+					.httpStatus()
+					.isInternalServerError();
+		}
+
+		@Test
+		void testStatusFamilyRedirect() {
+			assertThat(createResponse(302))
+					.httpStatus()
+					.is3xxRedirection();
+		}
+
+		@Test
+		void testStatusFamilyClientError() {
+			assertThat(createResponse(401))
+					.httpStatus()
+					.is4xxClientError();
 		}
 
 		private MockHttpServletResponse createResponse(int status) {
